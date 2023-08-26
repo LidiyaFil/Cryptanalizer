@@ -15,18 +15,34 @@ public class Decoding {
     static String pathDestination = "TextAfterEncryptionAndDecryption.txt";
 
     public static void decoding(int key) {
-        try (RandomAccessFile raf = new RandomAccessFile(pathSource, "rw");
-             FileChannel fc = raf.getChannel()) {
-            ByteBuffer bb = ByteBuffer.allocate((int) fc.size());
 
-            fc.read(bb);
-            bb.flip();
+        CharBuffer ch = WorkWithFile.read(pathSource);
 
-            Charset charset = StandardCharsets.UTF_8;
-            CharBuffer ch = charset.decode(bb);
+        StringBuilder output = new StringBuilder();
 
+        for (int i = 0; i < ch.length(); i++) {
+            char c = ch.charAt(i);
+            if (SIMBOLS.indexOf(c) != -1) {
+                int newIndex = (SIMBOLS.indexOf(c) - key + SIMBOLS.length()) % SIMBOLS.length();
+                output.append(SIMBOLS.charAt(newIndex));
+            } else {
+                output.append(c);
+            }
+        }
+
+        try {
+            WorkWithFile.write(pathDestination, output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void brutForce() {
+
+        CharBuffer ch = WorkWithFile.read(pathSource);
+
+        for (int key = 1; key <= 20; key++) {
             StringBuilder output = new StringBuilder();
-
             for (int i = 0; i < ch.length(); i++) {
                 char c = ch.charAt(i);
                 if (SIMBOLS.indexOf(c) != -1) {
@@ -36,47 +52,14 @@ public class Decoding {
                     output.append(c);
                 }
             }
-
-            Path outputPath = Paths.get(pathDestination);
-            Files.createFile(outputPath);
-            Files.writeString(outputPath, output);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void brutForce() {
-        try (RandomAccessFile raf = new RandomAccessFile(pathSource, "rw");
-             FileChannel fc = raf.getChannel()) {
-            ByteBuffer bb = ByteBuffer.allocate((int) fc.size());
-
-            fc.read(bb);
-            bb.flip();
-
-            Charset charset = StandardCharsets.UTF_8;
-            CharBuffer ch = charset.decode(bb);
-
-            for (int key = 1; key <= 20; key++) {
-                StringBuilder output = new StringBuilder();
-                for (int i = 0; i < ch.length(); i++) {
-                    char c = ch.charAt(i);
-                    if (SIMBOLS.indexOf(c) != -1) {
-                        int newIndex = (SIMBOLS.indexOf(c) - key + SIMBOLS.length()) % SIMBOLS.length();
-                        output.append(SIMBOLS.charAt(newIndex));
-                    } else {
-                        output.append(c);
-                    }
+            if (isDecryptionValid(String.valueOf(output))) {
+                try {
+                    WorkWithFile.write(pathDestination, output);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                if (isDecryptionValid(String.valueOf(output))) {
-                    Path outputPath = Paths.get(pathDestination);
-                    Files.createFile(outputPath);
-                    Files.writeString(outputPath, output);
-                    break;
-                }
+                break;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

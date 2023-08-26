@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+
 public class Encryption {
     static final String SIMBOLS = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя.,\":-!? ";
     static String pathSource = "TextBeforeEncryption.txt";
@@ -16,15 +17,7 @@ public class Encryption {
 
     public static void encryption(int key) {
 
-        try (RandomAccessFile raf = new RandomAccessFile(pathSource, "rw");
-             FileChannel fc = raf.getChannel()) {
-            ByteBuffer bb = ByteBuffer.allocate((int) fc.size());
-
-            fc.read(bb);
-            bb.flip();
-
-            Charset charset = StandardCharsets.UTF_8;
-            CharBuffer ch = charset.decode(bb);
+        CharBuffer ch = WorkWithFile.read(pathSource);
 
             StringBuilder output = new StringBuilder();
 
@@ -38,10 +31,8 @@ public class Encryption {
                 }
             }
 
-            Path outputPath = Paths.get(pathDestination);
-            Files.createFile(outputPath);
-            Files.writeString(outputPath, output);
-
+        try {
+            WorkWithFile.write(pathDestination, output);
         } catch (IOException e) {
             e.printStackTrace();
         }
