@@ -22,7 +22,7 @@ public class Runner {
             System.out.printf("Encryption completed, file named %s", Encryption.pathDestination);
 
         } else if (choice == 2) {
-            String passEnter = scan.nextLine();
+            scan.nextLine();
             System.out.println("If you know the key please write: y or n");
             String knowKey = scan.nextLine();
             while (!knowKey.equals("y") && !knowKey.equals("n")) {
